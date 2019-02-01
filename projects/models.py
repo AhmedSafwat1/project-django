@@ -31,8 +31,30 @@ class Projects(models.Model):
 class ImageProject(models.Model):
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)
     image = models.ImageField(
-        upload_to='pic_folder/',
+        upload_to='pic_folder/projects/',
         default='pic_folder/None/no-img.jpg')
+
+    def remove_on_image_update(self):
+        try:
+            # is the object in the database yet?
+            obj = ImageProject.objects.get(id=self.id)
+        except ImageProject.DoesNotExist:
+            # object is not in db, nothing to worry about
+            return
+        # is the save due to an update of the actual image file?
+        if obj.image and self.image and obj.image != self.image:
+            # delete the old image file from the storage in favor of the new file
+            obj.image.delete()
+
+    def delete(self, *args, **kwargs):
+        # object is being removed from db, remove the file from storage first
+        self.image.delete()
+        return super(ImageProject, self).delete(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        # object is possibly being updated, if so, clean up.
+        self.remove_on_image_update()
+        return super(ImageProject, self).save(*args, **kwargs)
 
 
 
@@ -42,8 +64,7 @@ class Rate(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     rate = models.IntegerField(validators=[MinValueValidator(1)
         , MaxValueValidator(10)])
-    def __str__(self):
-        return self.rate
+
 
 class Supplier(models.Model):
     supplierName = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -52,8 +73,6 @@ class Supplier(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return (self.supplierName,self.quanty)
 
 
 class Comment(models.Model):
@@ -63,7 +82,8 @@ class Comment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     def __str__(self):
-        return (self.user,self.content,self.project)
+        return self.project
+
 class ReportProject(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)
@@ -72,7 +92,7 @@ class ReportProject(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return (self.user, self.content, self.project)
+        return self.content
 
 class ReportComment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -82,4 +102,4 @@ class ReportComment(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return (self.user, self.content, self.comment)
+        return self.content
