@@ -9,4 +9,6 @@ admin.site.register(Supplier)
 admin.site.register(ReportComment)
 admin.site.register(ReportProject)
 admin.site.register(ImageProject)
+admin.site.register(ProjectTage)
+admin.site.register(FeatureProjects)
 
