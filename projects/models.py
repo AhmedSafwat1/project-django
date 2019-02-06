@@ -54,6 +54,29 @@ class Projects(models.Model):
         return self.supplier_set.all().count()
     def SupllierMoney(self):
         return self.supplier_set.all().aggregate(Sum('quanty'))
+    def relativeProject(self):
+        num=self.tags.count()
+        if num ==1:
+            return self.tags.all()[0].project_all()[0:4]
+        elif num == 2:
+            first = self.tags.all()[0].project_all()[0:2]
+            second = self.tags.all()[1].project_all()[0:2]
+            return first.union(second)
+        elif num == 3:
+            first = self.tags.all()[0].project_all()[0:2]
+            second = self.tags.all()[1].project_all()[0:1]
+            third = self.tags.all()[2].project_all()[0:1]
+            return first.union(third,second)
+        elif num == 4:
+            first = self.tags.all()[0].project_all()[0:1]
+            second = self.tags.all()[1].project_all()[0:1]
+            third = self.tags.all()[2].project_all()[0:1]
+            four = self.tags.all()[3].project_all()[0:1]
+            return first.union(third, second ,four)
+        else:
+
+            return self.tags.all()
+
     def checkTarget(self):
         if self.supplier_set.all().aggregate(Sum('quanty'))['quanty__sum'] is None:
             return True

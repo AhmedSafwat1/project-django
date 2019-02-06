@@ -49,9 +49,11 @@
                   {% else %}
                         <img src="{% static 'projects/image/001.jpg' %}" width="300" height="300" class="rounded-circle">
                     {% endif %}
+                  {% if flag %}
                   <div class="text-center">
-                      <a href="btn btn-primary btn-lg">edit info</a>
+                      <a class="" href="{% url 'users:edit' user.id %}">edit info</a>
                   </div>
+                  {% endif %}
               </div>
               <div class="col-md-8">
                   <ul class="list-unstyled">

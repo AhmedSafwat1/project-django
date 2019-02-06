@@ -1,86 +1,13 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from .forms import *
-from django.http import QueryDict
+from django.contrib.auth.decorators import login_required
 from .models import *
-from django.forms import formset_factory
-from django.forms import modelformset_factory
 from django.db.models import Avg
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404,redirect
 from django.contrib import messages
 
 # Create your views here.
-def dict_querydict(dict_):
-    """
-    Converts a value created by querydict_dict back into a Django QueryDict value.
-    """
-    q = QueryDict("", mutable=True)
-    for k, v in dict_.items():
-        q.setlist(k, v)
-    q._mutable = False
-    return q
-
-
-def index(request):
-    f = ProjectFormAdd()
-    return render(request, "projects/tetting.html", {"f": f})
-
-
-def add(request):
-    f = ProjectFormAdd(request.POST)
-    print(request.POST);
-    test = {
-        'title': ['testfrom ppp'],
-        'details': ['wewf'],
-        'categorie': ['2'],
-        'user': ['1'],
-        'totalTarget': ['1400'],
-        'startCampaign': ['2019-02-05'],
-        'endcampaign': ['2019-02-13']
-    }
-    test = dict_querydict(test)
-    f = ProjectFormAdd(test)
-    print(request.FILES)
-    print(request.FILES['image'])
-    count = len(request.FILES.getlist("image"))
-    ImageFormSet = modelformset_factory(ImageProject,
-                                        form=ImageForm, extra=5)
-    formset = ImageFormSet(request.POST, request.FILES)
-    test2 = {
-        "project": ['43'],
-        "form-MAX_NUM_FORMS": [formset.management_form]
-    }
-    test2 = dict_querydict(test2)
-    f2 = ProjectFormAddImage(test2, request.FILES);
-
-    # print(formset);
-    p = Projects.objects.get(id=43)
-    for form in formset:
-        print(form.as_table())
-        # if form:
-        #    image = form['image']
-        #    Post = ImageProject(project=p, image=image)
-        #    Post.save()
-
-    f2 = ProjectFormAddImage(test2)
-    # f2.save()
-    # ====================================
-
-    # =================================
-    # f.save()
-    # f.save()
-    # p = Projects.objects.latest('id')
-    # for img in request.FILES.getlist("image"):
-    #    image = ImageProject()
-    #    image.image = img
-    #    image.project = p
-    #    image.save()
-
-    # p.first().rate_set.all().aggregate(Avg('rate')) to get avg
-    print(formset.management_form)
-    return HttpResponse(f)
-
 
 # start project
 def checkUNique(tag):
@@ -91,7 +18,7 @@ def checkUNique(tag):
         t.save()
         return t
 
-
+@login_required()
 def new(request):
     context = {
         "categories": Categories.objects.all(),
@@ -100,22 +27,18 @@ def new(request):
         newProject = ProjectFormAdd(request.POST, request.FILES)
         if newProject.is_valid():
             newProject.save()
-            print(request.FILES)
             p = Projects.objects.latest('id')
             if request.POST['tags']:
                 tags = request.POST['tags'].split(",")
-                # print(tags);
                 for i in tags:
                     p.tags.add(checkUNique(i))
-                    # 'image/png'
                 for img in request.FILES.getlist("image"):
                     image = ImageProject()
                     image.image = img
-                    print(img.__dict__)
                     image.project = p
                     image.save()
             messages.success(request, "Add new Project Sucess")
-            return redirect("/projects")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
         else:
             context['form'] = newProject
             context['data'] = request.POST
@@ -169,12 +92,12 @@ def search(request):
         "categieNmae": searching
     }
     return  render(request,"projects/view.html",context)
-
+@login_required()
 def donate(request,pid):
     project  = get_object_or_404(Projects,id=pid)
     form = SupllierForm(request.POST)
     if form.is_valid():
-        user = get_object_or_404(User,id=1)
+        user = request.user
         new_s = Supplier(project=project,supplierName=user,quanty=request.POST['quanty'])
         new_s.save();
         messages.success(request,"Donate Sucess")
@@ -192,12 +115,13 @@ def details(request, pid):
         "categories": categories,
         "images":project.allImage(),
         "project":project,
+        "relativesProject":project.relativeProject(),
         "commentcount": project.comments().count()
     }
     return  render(request, "projects/details.html", context )
-
+@login_required()
 def rateing(request, pid):
-    user1 = User.objects.get(id=1)
+    user1 = request.user
     project1 = get_object_or_404(Projects,id=pid);
     r =request.POST['rate']
     if(Rate.objects.filter(project=project1, user=user1)):
@@ -207,49 +131,49 @@ def rateing(request, pid):
         Rate.objects.create(project=project1, user=user1, rate=r)
         messages.success(request, "Rateing Sucess")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-
+@login_required()
 def reportProject(request, pid):
     form = ReportForm(request.POST)
     if form.is_valid():
         project= get_object_or_404(Projects,id=pid)
-        user = get_object_or_404(User ,id=1)
+        user1 = request.user
         content = form.cleaned_data.get("content")
-        ReportProject.objects.create(project=project,user=user,content=content)
+        ReportProject.objects.create(project=project,user=user1,content=content)
         messages.success(request, "Reporting Sucess")
     else:
         messages.error(request, "Error not Report sucess sucess")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-
+@login_required()
 def reportComment(request, pid, cid):
     form = ReportForm(request.POST)
     if form.is_valid():
         project= get_object_or_404(Projects,id=pid)
         comment = get_object_or_404(Comment,id=cid)
-        user = get_object_or_404(User ,id=1)
+        user1 = request.user
         content = form.cleaned_data.get("content")
-        ReportComment.objects.create(comment=comment,user=user,content=content)
+        ReportComment.objects.create(comment=comment,user=user1,content=content)
         messages.success(request, "Reporting Sucess")
     else:
         messages.error(request, "Error not Report sucess sucess")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-
+@login_required()
 def comment(request, pid):
     form = CommentForm(request.POST)
 
     if form.is_valid():
         project = get_object_or_404(Projects, id=pid)
-        user = get_object_or_404(User, id=1)
+        user1 = request.user
         content = form.cleaned_data.get("content")
-        Comment.objects.create(user=user, project=project, content=content)
+        Comment.objects.create(user=user1, project=project, content=content)
         messages.success(request, "commented Sucess")
     else:
         messages.error(request, "Error not comment sucess sucess")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-
+@login_required()
 def deletProject(request, cid):
-    user = User.objects.get(id=1)
-    project = get_object_or_404(Projects,id=cid, user=user)
+    user1 = request.user
+    project = get_object_or_404(Projects,id=cid, user=user1)
     project.delete()
     messages.success(request, "Delete Sucess")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
