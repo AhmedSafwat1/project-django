@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from django.db.models import Avg
+from django.db.models import Avg,Sum
 from datetime import datetime
 
 
@@ -50,6 +50,17 @@ class Projects(models.Model):
         return self.comment_set.all()
     def commentcount(self):
         return self.comment_set.all().count()
+    def supplierCount(self):
+        return self.supplier_set.all().count()
+    def SupllierMoney(self):
+        return self.supplier_set.all().aggregate(Sum('quanty'))
+    def checkTarget(self):
+        if self.supplier_set.all().aggregate(Sum('quanty'))['quanty__sum'] is None:
+            return True
+        else:
+            return (int(self.supplier_set.all().aggregate(Sum('quanty'))['quanty__sum'])/int(self.totalTarget))*100 < 25
+    def getTages(self):
+        return self.tags.all()
     def get_date(self):
         time = datetime.now()
         if self.created.day == time.day:
@@ -124,6 +135,17 @@ class Comment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    def get_date(self):
+        time = datetime.now()
+        if self.created.day == time.day:
+            return str(time.hour - self.created.hour) + " hours ago"
+        if self.created.month == time.month:
+            return str(time.day - self.created.day) + " days ago"
+        else:
+            if self.created.year == time.year:
+                return str(time.month - self.created.month) + " months ago"
+
+        return self.created
     def __str__(self):
         return self.content
 

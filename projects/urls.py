@@ -12,5 +12,7 @@ urlpatterns = [
     path("details/<int:pid>", details, name="detail"),
     path("rate/<int:pid>", rateing, name="rate"),
     path("report/<int:pid>/<int:cid>", reportComment, name="reportcomment"),
-    path("report/<int:pid>", reportProject, name="reportproject")
+    path("report/<int:pid>", reportProject, name="reportproject"),
+    path("comment/<int:pid>", comment, name="comment"),
+    path("delete/<int:cid>", deletProject, name="deleteProject")
 ]

@@ -33,6 +33,11 @@ class SupllierForm(ModelForm):
         model = Supplier
         fields = ['quanty',]
 
+class CommentForm(ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content',]
+
 class SearchForm(forms.Form):
     mode = forms.ChoiceField(required=True,choices=(('1',"Tage"),('2',"title")))
     search = forms.CharField(required=True)

@@ -93,7 +93,7 @@
                     </p>
                   </div>
                  <div class="card-body pb-0">
-                    <a href="#" class="card-link">Details</a>
+                    <a href="{% url 'projects:detail' project.id %}" class="card-link">Details</a>
                     <button type="button" class="btn btn-link" data-toggle="modal" data-target="#dnonate{{forloop.counter}}" data-whatever="@mdo">Donate</button>
                     <!--model-->
                      <div class="modal fade" id="dnonate{{forloop.counter}}" tabindex="-1" role="dialog" aria-labelledby="dnonate{{forloop.counter}}Label" aria-hidden="true">
@@ -127,6 +127,27 @@
                       </div>
                     </div>
                      </div>
+                    <div class="more-info">
+                        <div class="row no-gutters ">
+                            <div class="col-md-6 border p-1 ">
+                                <i class="fas fa-star mr-3"></i>
+                                <span class="badge badge-warning">{{project.rating.rate__avg|default_if_none:0|to_int}}</span>
+                            </div>
+                            <div class="col-md-6 border p-1 ">
+                                <i class="fas fa-users mr-3"></i>
+                                <span class="badge badge-success">{{project.supplierCount|default_if_none:0|to_int}}</span>
+                            </div>
+                            <div class="col-md-6 border p-1 ">
+                                <i class="fas fa-money-check-alt fa-1x mr-3"></i>
+                                <span class="badge badge-success mr-3">{{project.SupllierMoney.quanty__sum|default_if_none:0|to_int}} $</span>
+                            </div>
+                             <div class="col-md-6 border p-1  ">
+                                <i class="fas fa-business-time mr-3"></i>
+                                <span class="badge badge-success">{{project.SupllierMoney.quanty__sum|default_if_none:0|to_int|sub:project.totalTarget}} $</span>
+                            </div>
+
+                        </div>
+                    </div>
                   <div class="card-footer text-muted">
                         {{project.get_date}}
                   </div>
@@ -180,7 +201,7 @@
                     </p>
                   </div>
                  <div class="card-body">
-                    <a href="#" class="card-link">Details</a>
+                    <a href="{% url 'projects:detail' project.project.id %}" class="card-link">Details</a>
 
                   <button type="button" class="btn btn-link" data-toggle="modal" data-target="#dnonate2{{forloop.counter}}" data-whatever="@mdo">Donate</button>
                     <!--model-->
@@ -215,6 +236,28 @@
                       </div>
                     </div>
                  </div>
+                       <div class="more-info">
+                        <div class="row no-gutters ">
+                            <div class="col-md-6 border p-1 ">
+                                <i class="fas fa-star mr-3"></i>
+                                <span class="badge badge-warning">{{project.project.rating.rate__avg|default_if_none:0|to_int}}</span>
+                            </div>
+                            <div class="col-md-6 border p-1 ">
+                                <i class="fas fa-users mr-3"></i>
+                                <span class="badge badge-success">{{project.project.supplierCount|default_if_none:0|to_int}}</span>
+                            </div>
+                            <div class="col-md-6 border p-1 ">
+                                <i class="fas fa-money-check-alt fa-1x mr-3"></i>
+                                <span class="badge badge-success">{{project.project.SupllierMoney.quanty__sum|default_if_none:0|to_int}} $</span>
+                            </div>
+                             <div class="col-md-6 border p-1 ">
+                                <i class="fas fa-business-time mr-3"></i>
+                                <span class="badge badge-success">{{project.project.SupllierMoney.quanty__sum|default_if_none:0|to_int|sub:project.project.totalTarget}} $</span>
+                            </div>
+
+                        </div>
+                    </div>
+
                   <div class="card-footer text-muted">
                         {{project.project.get_date}}
                   </div>

@@ -104,7 +104,7 @@ def new(request):
             p = Projects.objects.latest('id')
             if request.POST['tags']:
                 tags = request.POST['tags'].split(",")
-                print(tags);
+                # print(tags);
                 for i in tags:
                     p.tags.add(checkUNique(i))
                     # 'image/png'
@@ -114,8 +114,8 @@ def new(request):
                     print(img.__dict__)
                     image.project = p
                     image.save()
-
-            return HttpResponse("hello")
+            messages.success(request, "Add new Project Sucess")
+            return redirect("/projects")
         else:
             context['form'] = newProject
             context['data'] = request.POST
@@ -197,7 +197,7 @@ def details(request, pid):
     return  render(request, "projects/details.html", context )
 
 def rateing(request, pid):
-    user1 = User.objects.get(id=2)
+    user1 = User.objects.get(id=1)
     project1 = get_object_or_404(Projects,id=pid);
     r =request.POST['rate']
     if(Rate.objects.filter(project=project1, user=user1)):
@@ -232,3 +232,27 @@ def reportComment(request, pid, cid):
     else:
         messages.error(request, "Error not Report sucess sucess")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+def comment(request, pid):
+    form = CommentForm(request.POST)
+
+    if form.is_valid():
+        project = get_object_or_404(Projects, id=pid)
+        user = get_object_or_404(User, id=1)
+        content = form.cleaned_data.get("content")
+        Comment.objects.create(user=user, project=project, content=content)
+        messages.success(request, "commented Sucess")
+    else:
+        messages.error(request, "Error not comment sucess sucess")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+def deletProject(request, cid):
+    user = User.objects.get(id=1)
+    project = get_object_or_404(Projects,id=cid, user=user)
+    project.delete()
+    messages.success(request, "Delete Sucess")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+

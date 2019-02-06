@@ -68,7 +68,7 @@
                     </div>
                     <div class="col-md-3 border p-4">
                         <span class="h5 mr-5"> Have </span>
-                        <span class="badge badge-pill badge-warning">{{project.totalTarget}}</span>
+                        <span class="badge badge-pill badge-warning">{{project.SupllierMoney.quanty__sum|default_if_none:0|to_int}}</span>
                     </div>
                     <div class="col-md-3 border p-4">
                         <i class="fas fa-clock fa-2x"></i>
@@ -80,9 +80,31 @@
                         <span class="h3 text-danger">{{project.endcampaign}}</span>
                     </div>
                     <!--======================================-->
+            <div class="w-100"></div>
+            <div class="col-md-3 border p-4 ">
+                        <i class="fas fa-users fa-1x "></i>
+                        <span class="h5 mr-5"> Suplliers </span>
+                        <span class="badge badge-secondary">{{project.supplierCount|default_if_none:0|to_int}}</span>
+                    </div>
+                    <div class="col-md-3 border p-4">
+                        <i class="fas fa-business-time"></i>
+                        <span class="h5 mr-5"> Remander </span>
+                        <span class="badge badge-success">{{project.SupllierMoney.quanty__sum|default_if_none:0|to_int|sub:project.totalTarget}} $</span>
+                    </div>
+                    <div class="col-md-6 border p-4">
+                        <span class="mr-3 text-muted h3">Categories</span>
+                        <span class="h3"> <a href="{% url 'projects:show' project.categorie.id %}" class="badge badge-primary">{{project.categorie.name}}</a></span>
+                    </div>
+
                 </div>
             </p>
 
+            <p class="card-text lead ">
+                {% for tage in project.getTages %}
+                         <a href="/projects/search?mode=1&search={{tage}}" class="badge badge-primary">{{tage}}</a>
+                        {% endfor %}
+            </p>
+            <hr>
             <p class="card-text lead ">
 
             <div class="row">
@@ -94,6 +116,8 @@
                     <button type="button" class="btn btn-link" data-toggle="modal" data-target="#dnonate"
                             data-whatever="@mdo">Give Rate
                     </button>
+                     <button type="button" class="btn btn-link" data-toggle="modal" data-target="#dnonate2" data-whatever="@mdo">Donate</button>
+
                     <button type="button" class="btn btn-link" data-toggle="modal" data-target="#reportpost"
                             data-whatever="@mdo">Give Report
                     </button>
@@ -163,7 +187,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
+
+        </div>
         </div>
     </div>
 </div>
@@ -196,8 +221,10 @@
                         </div>
             <p class="lead text-muted shadow p-3 mb-2 bg-white rounded">
                 {{comment.content}}
+                 <p class=" text-muted lead pl-5"> {{comment.get_date}}</p>
             </p>
-            <!--============-->
+            <!a332s3
+       --============-->
             <!--model-->
             <div class="modal fade" id="reportcomment{{forloop.counter}}" tabindex="-1" role="dialog"
                  aria-labelledby="reportcommentLabel{{forloop.counter}}" aria-hidden="true">
@@ -241,11 +268,52 @@
         </div>
         </div>
         {% endfor %}
+        <!--add comment-->
+        <form class="p-4" method="post" action="{% url 'projects:comment' project.id %}">
+            {% csrf_token %}
+              <div class="form-group">
+                <label for="exampleFormControlTextarea1" class="h3 text-info">New Comment</label>
+                <textarea class="form-control" required id="exampleFormControlTextarea1" name ="content" rows="3"></textarea>
+              </div>
+             <div class="form-group  ">
+                 <input type="submit" class="btn btn-primary mb-2 btn-lg" value="Comment">
+             </div>
+            </form>
 
+        </form>
    </div>
-<!--start model for report post-->
+<!--model donate-->
+ <div class="modal fade" id="dnonate2" tabindex="-1" role="dialog" aria-labelledby="dnonate2Label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="dnonate2Label">New Donate To {{project.title}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="{% url 'projects:donate' project.id %}" method="post" >
+            {% csrf_token %}
+          <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Recipient To :</label>
+            <input type="text" class="form-control" disabled id="recipient-name" value="{{project.user.username}}">
+          </div>
+          <div class="form-group">
+            <label  class="col-form-label">Qunaty oF Many</label>
+            <input type="number"  class="form-control"  required name="quanty"  placeholder="Enter qunaty of mony">
+          </div>
+            <input type="submit" class="btn btn-primary"  value="Donate"  >
+        </form>
+      </div>
+         <div class="modal-footer">
+        <button type="button"  class="btn btn-secondary" data-dismiss="modal">Close</button>
 
-
+      </div>
+    </div>
+  </div>
+</div>
+ </div>
 <!--end-->
 
 {% endblock %}

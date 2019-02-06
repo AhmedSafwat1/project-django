@@ -9,7 +9,7 @@ class Profile(models.Model):
     country = models.CharField(max_length=30, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     phone_regex = RegexValidator(regex=r'^01[5|1|2|0][0-9]{8}$',
-                                 message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+                                 message="Phone number must be entered in the format: '010|012|015|011'. Up to 11 digits allowed.")
     phone = models.CharField(max_length=11, validators=[phone_regex ],
                              null=True, blank=True)
     image = models.ImageField(
