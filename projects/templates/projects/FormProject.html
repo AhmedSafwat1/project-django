@@ -106,7 +106,7 @@
          </div>
         <input type="hidden" name="user" value="{{user.id}}">
         <div class="custom-file mb-4">
-          <input type="file"  name="image" multiple class="custom-file-input form-control-lg" >
+          <input type="file"  id="images" name="image" onchange="checkFile()" multiple class="custom-file-input form-control-lg"  accept="image/gif, image/jpeg, image/png">
           <label class="custom-file-label" data-browse="Bestand kiezen">Project Image</label>
         </div>
       <div class="d-flex justify-content-center mb-3">
@@ -115,4 +115,47 @@
 
     </form>
 </div>
+<!--valid-->
+<script>
+        function checkFile() {
+        var x =  document.getElementById("images");
+        var txt = "";
+        document.getElementById("demo").innerHTML = txt;
+        if ('files' in x) {
+        if (x.files.length == 0) {
+        txt = "Select one or more files.";
+        } else {
+        for (var i = 0; i < x.files.length; i++) {
+
+        var file = x.files[i];
+        if ('name' in file) {
+
+        var ext = file.name.split('.').pop().toLowerCase();
+        if($.inArray(ext, ['gif','png','jpg','jpeg']) == -1){
+        txt += "name: " + file.name + "<br>";
+        document.getElementById("images").value = "";
+
+        if ('size' in file) {
+        txt += "size: " + file.size + " bytes <br>";
+        }
+        alert('You are trying to upload files which not allowed ' + "(" + file.name + " is invalid)");
+
+        }
+
+        }
+        }
+        }
+        }
+        else {
+        if (x.value == "") {
+        txt += "Select one or more files.";
+        } else {
+        txt += "The files property is not supported by your browser!";
+        txt  += "<br>The path of the selected file: " + x.value;
+        }
+        }
+        }
+
+
+</script>
 {% endblock %}

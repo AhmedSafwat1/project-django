@@ -45,7 +45,7 @@
 		</div>
 		<div class="col-md-6">
 
-			<form action="{% url 'users:register'  %}" method="post" enctype="multipart/form-data">
+			<form class="mb-4" action="{% url 'users:register'  %}" method="post" enctype="multipart/form-data">
 				{% csrf_token %}
 				<div class="form-group">
 					<label >User Name</label>
@@ -73,7 +73,7 @@
 				</div>
                 <div class="form-group">
 					<label >Phone</label>
-					<input type="text" placeholder="phonenumber" class="form-control" name="phone" value="data.phone">
+					<input type="text" placeholder="phonenumber" class="form-control" name="phone" value="{{data.phone}}">
 				</div>
 				<div class="custom-file">
 					<input type="file" class="custom-file-input" id="validatedCustomFile" name="image">

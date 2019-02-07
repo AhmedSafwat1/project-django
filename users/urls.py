@@ -7,5 +7,6 @@ urlpatterns = [
    path("edit/<int:uid>", editprofile, name="edit"),
    path("logout", logout_view , name="logout"),
    path("login", loginuser, name="login2"),
-   path("register", register2 ,name="register")
+   path("register", register2 ,name="register"),
+
 ]

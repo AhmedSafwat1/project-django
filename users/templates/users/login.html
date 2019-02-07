@@ -43,7 +43,7 @@
             <img src="{% static 'users/images/images.jpeg' %}" class="w-100">
         </div>
         <div class="col-md-7">
-            <form action="{% url 'users:login2' %}" method="post">
+            <form class="mb-3" action="{% url 'users:login2' %}" method="post">
                 {% csrf_token %}
               <div class="form-group">
                 <label for="exampleInputEmail1">User Name</label>
@@ -55,7 +55,7 @@
                 <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" name="password">
               </div>
                 <div class="form-group">
-                   <a href="{% url 'users:register' %}">Register Now</a> , <a href="">Forget Password</a>
+                   <a href="{% url 'users:register' %}">Register Now</a> , <a href="{% url 'password_reset_recover' %}">Forget Password</a>
               </div>
               <button type="submit" class="btn btn-primary btn-block btn-lg">Login</button>
             </form>

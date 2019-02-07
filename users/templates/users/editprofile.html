@@ -44,7 +44,7 @@
 		</div>
 		<div class="col-md-8">
 			<h3 class="h2 text-muted text-center">Edit Information {{user.username}} </h3>
-			<form action="{% url 'users:edit' user.id %}" method="post" enctype="multipart/form-data">
+			<form  class="mb-3" action="{% url 'users:edit' user.id %}" method="post" enctype="multipart/form-data">
 				{% csrf_token %}
 				<div class="form-group">
 					<label >User Name</label>

@@ -4,8 +4,9 @@ from .forms import *
 from django.contrib.auth.decorators import login_required
 from .models import *
 from django.db.models import Avg
-from django.shortcuts import get_object_or_404,redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
+
 
 # Create your views here.
 
@@ -17,6 +18,7 @@ def checkUNique(tag):
         t = ProjectTage(tage=tag)
         t.save()
         return t
+
 
 @login_required()
 def new(request):
@@ -58,21 +60,23 @@ def index(request):
         "projects": projects,
         "ProjectRate": ProjectRate,
         "lastProject": lastProject,
-        "featureProjects":featureProjects,
-        "categories":categories
+        "featureProjects": featureProjects,
+        "categories": categories
     }
     return render(request, "projects/projectHome.html", context)
 
-def view(request,cid):
+
+def view(request, cid):
     projects = get_object_or_404(Categories, id=cid)
     categories = Categories.objects.all()
     context = {
-        "projects":projects.projects,
+        "projects": projects.projects,
         "categories": categories,
         "categieNmae": projects.name
     }
 
-    return  render(request,"projects/view.html",context)
+    return render(request, "projects/view.html", context)
+
 
 def search(request):
     form = SearchForm(request.GET)
@@ -91,17 +95,19 @@ def search(request):
         "categories": categories,
         "categieNmae": searching
     }
-    return  render(request,"projects/view.html",context)
+    return render(request, "projects/view.html", context)
+
+
 @login_required()
-def donate(request,pid):
-    project  = get_object_or_404(Projects,id=pid)
+def donate(request, pid):
+    project = get_object_or_404(Projects, id=pid)
     form = SupllierForm(request.POST)
     if form.is_valid():
         user = request.user
-        new_s = Supplier(project=project,supplierName=user,quanty=request.POST['quanty'])
+        new_s = Supplier(project=project, supplierName=user, quanty=request.POST['quanty'])
         new_s.save();
-        messages.success(request,"Donate Sucess")
-        return  HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        messages.success(request, "Donate Sucess")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
     else:
         messages.error(request, "Error not Donate sucess")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
@@ -113,49 +119,57 @@ def details(request, pid):
 
     context = {
         "categories": categories,
-        "images":project.allImage(),
-        "project":project,
-        "relativesProject":project.relativeProject(),
+        "images": project.allImage(),
+        "project": project,
+        "relativesProject": project.relativeProject(),
         "commentcount": project.comments().count()
     }
-    return  render(request, "projects/details.html", context )
+    return render(request, "projects/details.html", context)
+
+
 @login_required()
 def rateing(request, pid):
     user1 = request.user
-    project1 = get_object_or_404(Projects,id=pid);
-    r =request.POST['rate']
-    if(Rate.objects.filter(project=project1, user=user1)):
+    project1 = get_object_or_404(Projects, id=pid);
+    r = request.POST['rate']
+    if (Rate.objects.filter(project=project1, user=user1)):
         Rate.objects.filter(project=project1, user=user1).update(rate=r)
         messages.success(request, "Rateing Sucess")
     else:
         Rate.objects.create(project=project1, user=user1, rate=r)
         messages.success(request, "Rateing Sucess")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
 @login_required()
 def reportProject(request, pid):
     form = ReportForm(request.POST)
     if form.is_valid():
-        project= get_object_or_404(Projects,id=pid)
+        project = get_object_or_404(Projects, id=pid)
         user1 = request.user
         content = form.cleaned_data.get("content")
-        ReportProject.objects.create(project=project,user=user1,content=content)
+        ReportProject.objects.create(project=project, user=user1, content=content)
         messages.success(request, "Reporting Sucess")
     else:
         messages.error(request, "Error not Report sucess sucess")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
 @login_required()
 def reportComment(request, pid, cid):
     form = ReportForm(request.POST)
     if form.is_valid():
-        project= get_object_or_404(Projects,id=pid)
-        comment = get_object_or_404(Comment,id=cid)
+        project = get_object_or_404(Projects, id=pid)
+        comment = get_object_or_404(Comment, id=cid)
         user1 = request.user
         content = form.cleaned_data.get("content")
-        ReportComment.objects.create(comment=comment,user=user1,content=content)
+        ReportComment.objects.create(comment=comment, user=user1, content=content)
         messages.success(request, "Reporting Sucess")
     else:
         messages.error(request, "Error not Report sucess sucess")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
 @login_required()
 def comment(request, pid):
     form = CommentForm(request.POST)
@@ -170,13 +184,11 @@ def comment(request, pid):
         messages.error(request, "Error not comment sucess sucess")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
+
 @login_required()
 def deletProject(request, cid):
     user1 = request.user
-    project = get_object_or_404(Projects,id=cid, user=user1)
+    project = get_object_or_404(Projects, id=cid, user=user1)
     project.delete()
     messages.success(request, "Delete Sucess")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-
-
-

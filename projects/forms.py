@@ -8,7 +8,7 @@ class ProjectFormAdd(ModelForm):
     img_regex = RegexValidator(regex=r'(.*/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$',
                                  message="Image must b e jpg or png or jpeg only .")
     image = forms.ImageField(widget=forms.FileInput(attrs={'multiple': True,
-                                                           "accept":"image/*"}),
+                                                           "accept":"image/gif, image/jpeg, image/png"}),
                                      required=True, validators=[img_regex])
     class Meta:
         model = Projects

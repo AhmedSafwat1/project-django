@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.decorators import login_required
 from users.forms import *
-
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -20,13 +20,11 @@ def register2(request):
             formuser = UserFormAdd(request.POST)
             formprofile = profileFormEdit(request.POST, request.FILES)
             if formuser.is_valid() and formprofile.is_valid():
-                userreg = formuser.save()
-                userreg.refresh_from_db()
-                userreg.save()
-                newprof = Profile()
+                formuser.save()
+                userreg = User.objects.latest('id')
+                newprof = Profile.objects.get(user=userreg)
                 newprof.phone = formprofile.cleaned_data.get("phone")
                 newprof.image = formprofile.cleaned_data.get("image")
-                newprof.user = userreg
                 newprof.save()
                 messages.success(request, "sucess Register -- Welcom --")
                 return redirect("users:login2")
@@ -140,3 +138,7 @@ def editprofile(request, uid):
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
     else:
         return render(request, "users/editprofile.html", context)
+
+
+# testing
+
