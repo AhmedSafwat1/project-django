@@ -7,6 +7,13 @@ from django.contrib.auth.decorators import login_required
 from users.forms import *
 from django.contrib.auth.models import User
 
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from .tokens import account_activation_token
+from django.core.mail import EmailMessage
+
 # Create your views here.
 
 # register
@@ -22,12 +29,28 @@ def register2(request):
             if formuser.is_valid() and formprofile.is_valid():
                 formuser.save()
                 userreg = User.objects.latest('id')
+                userreg.is_active = False
+                userreg.save()
                 newprof = Profile.objects.get(user=userreg)
                 newprof.phone = formprofile.cleaned_data.get("phone")
                 newprof.image = formprofile.cleaned_data.get("image")
                 newprof.save()
-                messages.success(request, "sucess Register -- Welcom --")
-                return redirect("users:login2")
+                current_site = get_current_site(request)
+                mail_subject = 'Activate your blog account.'
+                message = render_to_string('users/acc_active_email.html', {
+                    'user': userreg,
+                    'domain': current_site.domain,
+                    'uid':urlsafe_base64_encode(force_bytes(userreg.pk)).decode(),
+                    'token': account_activation_token.make_token(userreg),
+                })
+                to_email = formuser.cleaned_data.get('email')
+                email = EmailMessage(
+                    mail_subject, message, to=[to_email]
+                )
+                email.send()
+                messages.success(request, "sucess Register -- Welcom -- "
+                                          "Please confirm your email address to complete the registration  ")
+                return HttpResponse('Please confirm your email address to complete the registration')
             else:
                 messages.error(request, formuser.errors)
                 messages.error(request, formprofile.errors)
@@ -141,4 +164,19 @@ def editprofile(request, uid):
 
 
 # testing
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        messages.success(request, "Thank you for your email confirmation. Now you can login your account .")
+        return redirect('projects:home')
+    else:
+        return HttpResponse('Activation link is invalid!')
 

@@ -46,6 +46,3 @@ class Profile(models.Model):
             Profile.objects.create(user=instance)
         instance.profile.save()
 
-
-
-
