@@ -38,9 +38,10 @@ def register2(request):
                 current_site = get_current_site(request)
                 mail_subject = 'Activate your blog account.'
                 message = render_to_string('users/acc_active_email.html', {
-                    'user': userreg,
+
                     'domain': current_site.domain,
-                    'uid':urlsafe_base64_encode(force_bytes(userreg.pk)).decode(),
+                    'uid':urlsafe_base64_encode(force_bytes(userreg.pk)),
+                    'user': userreg,
                     'token': account_activation_token.make_token(userreg),
                 })
                 to_email = formuser.cleaned_data.get('email')
